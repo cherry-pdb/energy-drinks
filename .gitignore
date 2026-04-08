@@ -34,5 +34,10 @@ pnpm-debug.log*
 !.env.example
 
 # --- Docker / local volumes (if any) ---
-**/data/
+/data/
+/pgdata/
+/postgres-data/
+
+# Ensure backend data access layer isn't ignored.
+!backend/Energy.Api/Data/
 
