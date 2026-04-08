@@ -11,6 +11,9 @@ public sealed class UpdateEnergyDrinkRequestValidator : AbstractValidator<Update
         RuleFor(x => x.Line).MaximumLength(100);
         RuleFor(x => x.Flavor).MaximumLength(100);
         RuleFor(x => x.VolumeMl).InclusiveBetween(1, 5000);
+        RuleFor(x => x.ExpirationDate)
+            .NotNull()
+            .When(x => x.CanFillState == Models.CanFillState.Full);
         RuleFor(x => x.Price).InclusiveBetween(0, 999999).When(x => x.Price.HasValue);
         RuleFor(x => x.PriceCurrency)
             .Must(x => string.IsNullOrWhiteSpace(x) || x.Trim().ToUpperInvariant() is "USD" or "EUR" or "RUB")

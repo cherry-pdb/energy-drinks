@@ -109,6 +109,7 @@ export default function App() {
     const totalStock = drinks.reduce((sum, x) => sum + x.quantity, 0);
     const sugarFree = drinks.filter((x) => x.isSugarFree).length;
     const expiringSoon = drinks.filter((x) => {
+      if (!x.expirationDate) return false;
       const days = Math.ceil((new Date(x.expirationDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
       return days <= 30;
     }).length;

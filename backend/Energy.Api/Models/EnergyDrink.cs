@@ -7,7 +7,7 @@ public sealed class EnergyDrink
     public string? Line { get; set; }
     public string? Flavor { get; set; }
     public int VolumeMl { get; set; }
-    public DateTime ExpirationDate { get; set; }
+    public DateTime? ExpirationDate { get; set; }
     public decimal? Price { get; set; }
     public string? PriceCurrency { get; set; }
     public int Quantity { get; set; }

@@ -4,7 +4,7 @@ export type EnergyDrink = {
   line?: string | null;
   flavor?: string | null;
   volumeMl: number;
-  expirationDate: string;
+  expirationDate: string | null;
   price?: number | null;
   priceCurrency?: 'USD' | 'EUR' | 'RUB' | null;
   quantity: number;
@@ -25,7 +25,7 @@ export type CreateEnergyDrinkRequest = {
   line?: string | null;
   flavor?: string | null;
   volumeMl: number;
-  expirationDate: string;
+  expirationDate: string | null;
   price?: number | null;
   priceCurrency?: 'USD' | 'EUR' | 'RUB' | null;
   quantity: number;

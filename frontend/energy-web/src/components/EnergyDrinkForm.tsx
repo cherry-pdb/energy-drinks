@@ -32,7 +32,7 @@ function toForm(drink: EnergyDrink): CreateEnergyDrinkRequest {
     line: drink.line ?? '',
     flavor: drink.flavor ?? '',
     volumeMl: drink.volumeMl,
-    expirationDate: drink.expirationDate.slice(0, 10),
+    expirationDate: drink.expirationDate ? drink.expirationDate.slice(0, 10) : null,
     price: drink.price ?? null,
     priceCurrency: drink.priceCurrency ?? 'USD',
     quantity: drink.quantity,
@@ -99,6 +99,7 @@ export function EnergyDrinkForm({ onSaved, editingDrink, onCancelEdit }: Props) 
       line: form.line || null,
       flavor: form.flavor || null,
       countries: form.countries && form.countries.length ? form.countries : null,
+      expirationDate: form.canFillState === 'Empty' ? null : form.expirationDate,
       imageUrl: form.imageUrl || null,
     };
 
@@ -130,7 +131,14 @@ export function EnergyDrinkForm({ onSaved, editingDrink, onCancelEdit }: Props) 
         <input className="input" placeholder="Line" value={form.line ?? ''} onChange={(e) => setForm({ ...form, line: e.target.value })} />
         <input className="input" placeholder="Flavor" value={form.flavor ?? ''} onChange={(e) => setForm({ ...form, flavor: e.target.value })} />
         <input className="input" type="number" placeholder="Volume ml" value={form.volumeMl} onChange={(e) => setForm({ ...form, volumeMl: e.target.value })} required />
-        <input className="input" type="date" value={form.expirationDate} onChange={(e) => setForm({ ...form, expirationDate: e.target.value })} required />
+        <input
+          className="input"
+          type="date"
+          value={form.expirationDate ?? ''}
+          onChange={(e) => setForm({ ...form, expirationDate: e.target.value })}
+          required={form.canFillState !== 'Empty'}
+          disabled={form.canFillState === 'Empty'}
+        />
         <select className="input" value={form.priceCurrency ?? 'USD'} onChange={(e) => setForm({ ...form, priceCurrency: e.target.value as CreateEnergyDrinkRequest['priceCurrency'] })}>
           <option value="USD">USD ($)</option>
           <option value="EUR">EUR (€)</option>

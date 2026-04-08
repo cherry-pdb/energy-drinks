@@ -23,8 +23,8 @@ type Props = {
 };
 
 export function EnergyDrinkCard({ drink, isAdmin = false, onEdit, onDelete }: Props) {
-  const daysLeft = daysUntilExpiration(drink.expirationDate);
-  const isExpiringSoon = daysLeft <= 30;
+  const daysLeft = drink.expirationDate ? daysUntilExpiration(drink.expirationDate) : null;
+  const isExpiringSoon = drink.canFillState !== 'Empty' && daysLeft != null && daysLeft <= 30;
 
   const countries = (drink.countries ?? []).filter(Boolean);
   const countryLabel = countries.length ? (
@@ -78,9 +78,13 @@ export function EnergyDrinkCard({ drink, isAdmin = false, onEdit, onDelete }: Pr
 
         <div className="drink-footer-row">
           <span className="muted">{countryLabel}</span>
-          <span className={isExpiringSoon ? 'danger' : 'muted'}>
-            Expires: {new Date(drink.expirationDate).toLocaleDateString()}
-          </span>
+          {drink.canFillState === 'Empty' || !drink.expirationDate ? (
+            <span className="muted">Empty can</span>
+          ) : (
+            <span className={isExpiringSoon ? 'danger' : 'muted'}>
+              Expires: {new Date(drink.expirationDate).toLocaleDateString()}
+            </span>
+          )}
         </div>
 
         {isAdmin ? (

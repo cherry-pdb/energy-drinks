@@ -69,7 +69,8 @@ public sealed class EnergyDrinkService : IEnergyDrinkService
             query = query.Where(x => x.CanFillState == CanFillState.Full);
 
         return query
-            .OrderBy(x => x.ExpirationDate)
+            .OrderBy(x => x.ExpirationDate == null)
+            .ThenBy(x => x.ExpirationDate)
             .ThenBy(x => x.Brand)
             .ThenBy(x => x.Id);
     }
@@ -199,14 +200,16 @@ public sealed class EnergyDrinkService : IEnergyDrinkService
         UpdatedAt = x.UpdatedAt
     };
 
-    private static DateTime NormalizeToUtc(DateTime value)
+    private static DateTime? NormalizeToUtc(DateTime? value)
     {
-        return value.Kind switch
+        if (value is null) return null;
+        var v = value.Value;
+        return v.Kind switch
         {
-            DateTimeKind.Utc => value,
-            DateTimeKind.Local => value.ToUniversalTime(),
-            DateTimeKind.Unspecified => DateTime.SpecifyKind(value, DateTimeKind.Utc),
-            _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
+            DateTimeKind.Utc => v,
+            DateTimeKind.Local => v.ToUniversalTime(),
+            DateTimeKind.Unspecified => DateTime.SpecifyKind(v, DateTimeKind.Utc),
+            _ => DateTime.SpecifyKind(v, DateTimeKind.Utc)
         };
     }
 
