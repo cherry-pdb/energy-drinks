@@ -32,16 +32,18 @@ export function FlagIcon({ code, size = 20, className }: Props) {
       style={{
         width: size,
         height: h,
-        display: 'inline-block',
+        display: 'inline-flex',
+        alignItems: 'center',
         verticalAlign: 'middle',
         borderRadius: 2,
         overflow: 'hidden',
         background: 'rgba(255,255,255,.06)',
+        lineHeight: 0,
       }}
       aria-hidden
       title={upper}
     >
-      <Flag />
+      <Flag className="flag-svg" />
     </span>
   );
 }
