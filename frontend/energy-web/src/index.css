@@ -15,7 +15,16 @@ body { margin: 0; min-width: 320px; background: radial-gradient(circle at top le
 button, input, select { font: inherit; }
 
 .page-shell { display: grid; grid-template-columns: 380px 1fr; min-height: 100vh; }
-.sidebar { padding: 28px; background: rgba(6, 12, 22, .72); border-right: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(12px); overflow-x: visible; overflow-y: auto; }
+.sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  padding: 28px;
+  background: rgba(6, 12, 22, .72);
+  border-right: 1px solid rgba(255,255,255,.08);
+  backdrop-filter: blur(12px);
+  overflow-x: visible;
+}
 .main-content { padding: 28px; }
 .sidebar-brand { display: flex; gap: 16px; align-items: center; margin-bottom: 24px; }
 .logo { width: 54px; height: 54px; display: grid; place-items: center; border-radius: 18px; background: linear-gradient(135deg,var(--accent-1),var(--accent-2)); box-shadow: 0 14px 26px rgba(255, 124, 44, .26); }
@@ -113,6 +122,11 @@ button, input, select { font: inherit; }
 .button-danger {
   background: linear-gradient(135deg, #ff6b6b, #c92a2a);
   color: white;
+}
+
+.button-drank {
+  background: linear-gradient(135deg, #2ee59d, #00bcd4);
+  color: #062016;
 }
 
 .admin-actions-row {

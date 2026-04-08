@@ -168,6 +168,19 @@ public sealed class EnergyDrinkService : IEnergyDrinkService
         return Map(entity);
     }
 
+    public async Task<EnergyDrinkDto?> MarkDrankAsync(Guid id, CancellationToken ct)
+    {
+        var entity = await _db.EnergyDrinks.FirstOrDefaultAsync(x => x.Id == id, ct);
+        if (entity is null) return null;
+
+        entity.CanFillState = CanFillState.Empty;
+        entity.ExpirationDate = null;
+        entity.UpdatedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync(ct);
+        return Map(entity);
+    }
+
     public async Task<bool> DeleteAsync(Guid id, CancellationToken ct)
     {
         var entity = await _db.EnergyDrinks.FirstOrDefaultAsync(x => x.Id == id, ct);

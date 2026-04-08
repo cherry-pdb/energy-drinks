@@ -15,5 +15,7 @@ public interface IEnergyDrinkService
 
     Task<EnergyDrinkDto?> UpdateAsync(Guid id, UpdateEnergyDrinkRequest request, CancellationToken ct);
 
+    Task<EnergyDrinkDto?> MarkDrankAsync(Guid id, CancellationToken ct);
+
     Task<bool> DeleteAsync(Guid id, CancellationToken ct);
 }

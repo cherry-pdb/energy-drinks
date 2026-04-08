@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { deleteEnergyDrink, getAdminUsername, getBrands, getEnergyDrinksPaged } from './api/energyApi';
+import { deleteEnergyDrink, getAdminUsername, getBrands, getEnergyDrinksPaged, markEnergyDrinkDrank } from './api/energyApi';
 import { AdminAuthCard } from './components/AdminAuthCard';
 import { EnergyDrinkCard } from './components/EnergyDrinkCard';
 import { EnergyDrinkForm } from './components/EnergyDrinkForm';
@@ -132,6 +132,16 @@ export default function App() {
     }
   }
 
+  async function handleDrank(drink: EnergyDrink) {
+    setActionError('');
+    try {
+      await markEnergyDrinkDrank(drink.id);
+      await loadFirstPage();
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Update failed');
+    }
+  }
+
   function handleEdit(drink: EnergyDrink) {
     setEditingDrink(drink);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -207,6 +217,7 @@ export default function App() {
                 isAdmin={isAdmin}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                onDrank={handleDrank}
               />
             ))}
             <div ref={sentinelRef} />

@@ -125,3 +125,11 @@ export async function deleteEnergyDrink(id: string): Promise<void> {
 
   if (!response.ok) throw new Error(response.status === 401 ? 'Unauthorized' : 'Failed to delete drink');
 }
+
+export async function markEnergyDrinkDrank(id: string): Promise<EnergyDrink> {
+  const response = await apiFetch(`/energy-drinks/${id}/drank`, {
+    method: 'POST',
+  }, true);
+  if (!response.ok) throw new Error(response.status === 401 ? 'Unauthorized' : 'Failed to update drink');
+  return response.json();
+}

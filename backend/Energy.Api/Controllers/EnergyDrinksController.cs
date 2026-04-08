@@ -62,6 +62,14 @@ public sealed class EnergyDrinksController : ControllerBase
         return updated is null ? NotFound() : Ok(updated);
     }
 
+    [HttpPost("{id:guid}/drank")]
+    [Authorize]
+    public async Task<ActionResult<EnergyDrinkDto>> MarkDrank(Guid id, CancellationToken ct)
+    {
+        var updated = await _drinks.MarkDrankAsync(id, ct);
+        return updated is null ? NotFound() : Ok(updated);
+    }
+
     [HttpDelete("{id:guid}")]
     [Authorize]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)

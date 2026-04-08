@@ -20,9 +20,10 @@ type Props = {
   isAdmin?: boolean;
   onEdit?: (drink: EnergyDrink) => void;
   onDelete?: (drink: EnergyDrink) => void;
+  onDrank?: (drink: EnergyDrink) => void;
 };
 
-export function EnergyDrinkCard({ drink, isAdmin = false, onEdit, onDelete }: Props) {
+export function EnergyDrinkCard({ drink, isAdmin = false, onEdit, onDelete, onDrank }: Props) {
   const daysLeft = drink.expirationDate ? daysUntilExpiration(drink.expirationDate) : null;
   const isExpiringSoon = drink.canFillState !== 'Empty' && daysLeft != null && daysLeft <= 30;
 
@@ -89,6 +90,11 @@ export function EnergyDrinkCard({ drink, isAdmin = false, onEdit, onDelete }: Pr
 
         {isAdmin ? (
           <div className="admin-actions-row">
+            {drink.canFillState !== 'Empty' ? (
+              <button className="button button-small button-drank" type="button" onClick={() => onDrank?.(drink)}>
+                Drank
+              </button>
+            ) : null}
             <button className="button button-small button-secondary" type="button" onClick={() => onEdit?.(drink)}>
               Edit
             </button>
