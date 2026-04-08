@@ -1,0 +1,74 @@
+services:
+  backend:
+    build:
+      context: ./backend/Energy.Api
+      dockerfile: Dockerfile
+    container_name: energy_api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ENERGY_DB_CONNECTION: Host=${POSTGRES_HOST};Port=${POSTGRES_PORT};Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      RunMigrationsOnStartup: ${ENERGY_RUN_MIGRATIONS_ON_STARTUP:-true}
+      Cors__AllowedOrigins__0: ${CORS_ALLOWED_ORIGINS}
+      Auth__AdminUsername: ${ADMIN_USERNAME}
+      Auth__AdminPassword: ${ADMIN_PASSWORD}
+      Auth__JwtSecret: ${JWT_SECRET}
+      Auth__Issuer: Energy.Api
+      Auth__Audience: Energy.Web
+      Auth__ExpirationHours: 24
+    networks:
+      - energy_net
+      - infra_net
+
+  frontend:
+    build:
+      context: ./frontend/energy-web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api
+    container_name: energy_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - energy_net
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: energy_nginx
+    restart: unless-stopped
+    depends_on:
+      - frontend
+      - backend
+    environment:
+      DOMAIN: ${DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - certbot_www:/var/www/certbot
+      - letsencrypt:/etc/letsencrypt
+    networks:
+      - energy_net
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: energy_certbot
+    profiles: ["manual"]
+    volumes:
+      - certbot_www:/var/www/certbot
+      - letsencrypt:/etc/letsencrypt
+    networks:
+      - energy_net
+
+volumes:
+  certbot_www:
+  letsencrypt:
+
+networks:
+  energy_net:
+    driver: bridge
+  infra_net:
+    external: true
