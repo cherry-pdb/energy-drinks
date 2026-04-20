@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Energy.Api.Data;
 using Energy.Api.Interfaces;
 using Energy.Api.Models;
+using Energy.Api.Options;
 using Energy.Api.Services;
 using Energy.Api.Validation;
 using FluentValidation;
@@ -37,6 +38,9 @@ builder.Services.AddDbContext<EnergyDbContext>(options =>
 
 builder.Services.AddScoped<IEnergyDrinkService, EnergyDrinkService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.Configure<S3Options>(builder.Configuration.GetSection(S3Options.SectionName));
+builder.Services.AddSingleton<IObjectStorage, S3ObjectStorage>();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
                      ?? builder.Configuration["Cors:AllowedOrigins"]?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)

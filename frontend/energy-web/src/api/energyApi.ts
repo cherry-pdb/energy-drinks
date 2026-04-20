@@ -25,7 +25,9 @@ export function clearAuth() {
 
 async function apiFetch(path: string, init?: RequestInit, withAuth = false) {
   const headers = new Headers(init?.headers ?? {});
-  if (!headers.has('Content-Type') && init?.body) headers.set('Content-Type', 'application/json');
+  const body = init?.body as unknown;
+  const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
+  if (!headers.has('Content-Type') && init?.body && !isFormData) headers.set('Content-Type', 'application/json');
   if (withAuth) {
     const token = getAuthToken();
     if (token) headers.set('Authorization', `Bearer ${token}`);
@@ -36,6 +38,21 @@ async function apiFetch(path: string, init?: RequestInit, withAuth = false) {
     clearAuth();
   }
   return response;
+}
+
+export async function uploadImage(file: File): Promise<string> {
+  const form = new FormData();
+  form.append('file', file);
+
+  const response = await apiFetch('/uploads/images', {
+    method: 'POST',
+    body: form,
+    headers: {},
+  }, true);
+
+  if (!response.ok) throw new Error(response.status === 401 ? 'Unauthorized' : 'Failed to upload image');
+  const data = (await response.json()) as { url: string };
+  return data.url;
 }
 
 export async function login(payload: LoginRequest): Promise<LoginResponse> {

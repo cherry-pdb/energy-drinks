@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { createEnergyDrink, updateEnergyDrink } from '../api/energyApi';
+import { createEnergyDrink, updateEnergyDrink, uploadImage } from '../api/energyApi';
 import type { CreateEnergyDrinkRequest, EnergyDrink } from '../types/energy';
 import { CountryMultiSelect } from './CountryMultiSelect';
 
@@ -64,6 +64,7 @@ type Props = {
 export function EnergyDrinkForm({ onSaved, editingDrink, onCancelEdit }: Props) {
   const [form, setForm] = useState<FormState>(createInitialForm());
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [error, setError] = useState('');
   const isEditing = Boolean(editingDrink);
 
@@ -71,6 +72,20 @@ export function EnergyDrinkForm({ onSaved, editingDrink, onCancelEdit }: Props) 
     setForm(editingDrink ? toFormState(editingDrink) : createInitialForm());
     setError('');
   }, [editingDrink]);
+
+  async function onPickImage(file: File | null) {
+    if (!file) return;
+    setError('');
+    setUploadingImage(true);
+    try {
+      const url = await uploadImage(file);
+      setForm((prev) => ({ ...prev, imageUrl: url }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Image upload failed');
+    } finally {
+      setUploadingImage(false);
+    }
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -150,7 +165,22 @@ export function EnergyDrinkForm({ onSaved, editingDrink, onCancelEdit }: Props) 
         <input className="input" type="number" placeholder="Sugar g" value={form.sugarGrams ?? ''} onChange={(e) => setForm({ ...form, sugarGrams: e.target.value ? Number(e.target.value) : null })} />
         <input className="input" type="number" placeholder="Calories" value={form.calories ?? ''} onChange={(e) => setForm({ ...form, calories: e.target.value ? Number(e.target.value) : null })} />
         <CountryMultiSelect value={form.countries} onChange={(next) => setForm({ ...form, countries: next })} />
-        <input className="input" placeholder="Image URL" value={form.imageUrl ?? ''} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <input
+            className="input"
+            type="file"
+            accept="image/*"
+            disabled={uploadingImage || loading}
+            onChange={(e) => void onPickImage(e.target.files?.[0] ?? null)}
+          />
+          <input
+            className="input"
+            placeholder={uploadingImage ? 'Uploading image...' : 'Image URL (auto-filled)'}
+            value={form.imageUrl ?? ''}
+            onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+            disabled={uploadingImage}
+          />
+        </div>
       </div>
 
       <div className="form-row switches">
