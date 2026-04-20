@@ -59,6 +59,7 @@ services:
       - letsencrypt:/etc/letsencrypt
     networks:
       - energy_net
+      - infra_net
 
   certbot:
     image: certbot/certbot:latest
