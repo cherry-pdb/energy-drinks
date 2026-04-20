@@ -1,8 +1,11 @@
+using Amazon.Runtime;
+using Amazon.S3;
 using Energy.Api.Interfaces;
 using Energy.Api.Options;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Net.Http;
 
 namespace Energy.Api.Controllers;
 
@@ -61,9 +64,39 @@ public sealed class UploadsController : ControllerBase
         }
 
         await using var stream = file.OpenReadStream();
-        var url = await _storage.UploadPublicImageAsync(stream, contentType, ext, ct);
-
-        return Ok(new UploadImageResponse { Url = url });
+        try
+        {
+            var url = await _storage.UploadPublicImageAsync(stream, contentType, ext, ct);
+            return Ok(new UploadImageResponse { Url = url });
+        }
+        catch (AmazonS3Exception ex)
+        {
+            return Problem(
+                detail: $"{ex.ErrorCode}: {ex.Message}",
+                statusCode: StatusCodes.Status502BadGateway,
+                title: "S3 upload failed");
+        }
+        catch (AmazonServiceException ex)
+        {
+            return Problem(
+                detail: $"{ex.ErrorCode}: {ex.Message}",
+                statusCode: StatusCodes.Status502BadGateway,
+                title: "S3 upload failed");
+        }
+        catch (HttpRequestException ex)
+        {
+            return Problem(
+                detail: ex.Message,
+                statusCode: StatusCodes.Status502BadGateway,
+                title: "S3 endpoint unreachable");
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(
+                detail: ex.Message,
+                statusCode: StatusCodes.Status500InternalServerError,
+                title: "S3 is misconfigured");
+        }
     }
 }
 

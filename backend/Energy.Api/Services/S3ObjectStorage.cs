@@ -16,11 +16,22 @@ public sealed class S3ObjectStorage : IObjectStorage
     {
         _options = options.Value;
 
-        var creds = new BasicAWSCredentials(_options.AccessKey, _options.SecretKey);
+        if (string.IsNullOrWhiteSpace(_options.ServiceUrl))
+            throw new InvalidOperationException("S3:ServiceUrl is not configured.");
+        if (string.IsNullOrWhiteSpace(_options.AccessKey))
+            throw new InvalidOperationException("S3:AccessKey is not configured.");
+        if (string.IsNullOrWhiteSpace(_options.SecretKey))
+            throw new InvalidOperationException("S3:SecretKey is not configured.");
+        if (string.IsNullOrWhiteSpace(_options.Bucket))
+            throw new InvalidOperationException("S3:Bucket is not configured.");
+
+        var creds = new BasicAWSCredentials(_options.AccessKey.Trim(), _options.SecretKey.Trim());
         var cfg = new AmazonS3Config
         {
-            ServiceURL = _options.ServiceUrl,
-            ForcePathStyle = true
+            ServiceURL = _options.ServiceUrl.Trim(),
+            ForcePathStyle = true,
+            AuthenticationRegion = "us-east-1",
+            UseHttp = _options.ServiceUrl.Trim().StartsWith("http://", StringComparison.OrdinalIgnoreCase)
         };
 
         _s3 = new AmazonS3Client(creds, cfg);
