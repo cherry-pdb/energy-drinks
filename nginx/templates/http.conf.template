@@ -24,7 +24,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    # Public object URLs for MinIO (path-style): https://<DOMAIN>/s3/<bucket>/<key>
+    # Public object URLs for MinIO (path-style): http://<DOMAIN>/s3/<bucket>/<key>
     # Requires `nginx` to be attached to the same docker network as MinIO (see root docker-compose.yml: `infra_net`).
     location /s3/ {
         proxy_pass http://minio:9000/;
