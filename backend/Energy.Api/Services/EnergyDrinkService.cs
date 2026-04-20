@@ -85,6 +85,7 @@ public sealed class EnergyDrinkService : IEnergyDrinkService
             VolumeMl = x.VolumeMl,
             ExpirationDate = x.ExpirationDate,
             Price = x.Price,
+            PriceCurrency = x.PriceCurrency,
             Quantity = x.Quantity,
             CaffeineMg = x.CaffeineMg,
             SugarGrams = x.SugarGrams,
