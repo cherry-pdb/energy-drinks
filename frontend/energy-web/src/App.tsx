@@ -13,6 +13,7 @@ export default function App() {
   const [brands, setBrands] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [selectedBrand, setSelectedBrand] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState('');
   const [sugarFreeOnly, setSugarFreeOnly] = useState(false);
   const [onlyFull, setOnlyFull] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -41,6 +42,7 @@ export default function App() {
         getEnergyDrinksPaged({
           search: search || undefined,
           brand: selectedBrand || undefined,
+          country: selectedCountry || undefined,
           isSugarFree: sugarFreeOnly ? true : undefined,
           onlyFull,
           page: 1,
@@ -71,6 +73,7 @@ export default function App() {
       const paged = await getEnergyDrinksPaged({
         search: search || undefined,
         brand: selectedBrand || undefined,
+        country: selectedCountry || undefined,
         isSugarFree: sugarFreeOnly ? true : undefined,
         onlyFull,
         page: nextPage,
@@ -90,7 +93,7 @@ export default function App() {
     }
   }
 
-  useEffect(() => { loadFirstPage(); }, [search, selectedBrand, sugarFreeOnly, onlyFull, authVersion]);
+  useEffect(() => { loadFirstPage(); }, [search, selectedBrand, selectedCountry, sugarFreeOnly, onlyFull, authVersion]);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -103,7 +106,7 @@ export default function App() {
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [hasMore, loading, loadingMore, page, search, selectedBrand, sugarFreeOnly, onlyFull]);
+  }, [hasMore, loading, loadingMore, page, search, selectedBrand, selectedCountry, sugarFreeOnly, onlyFull]);
 
   const stats = useMemo(() => {
     const totalStock = drinks.reduce((sum, x) => sum + x.quantity, 0);
@@ -193,11 +196,13 @@ export default function App() {
         <FilterBar
           search={search}
           selectedBrand={selectedBrand}
+          selectedCountry={selectedCountry}
           sugarFreeOnly={sugarFreeOnly}
           onlyActive={onlyFull}
           brands={brands}
           onSearchChange={setSearch}
           onBrandChange={setSelectedBrand}
+          onCountryChange={setSelectedCountry}
           onSugarFreeChange={setSugarFreeOnly}
           onOnlyActiveChange={setOnlyFull}
         />

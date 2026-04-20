@@ -15,20 +15,20 @@ public sealed class EnergyDrinkService : IEnergyDrinkService
         _db = db;
     }
 
-    public async Task<List<EnergyDrinkDto>> GetAllAsync(string? search, string? brand, bool? isSugarFree, bool onlyFull, CancellationToken ct)
+    public async Task<List<EnergyDrinkDto>> GetAllAsync(string? search, string? brand, string? country, bool? isSugarFree, bool onlyFull, CancellationToken ct)
     {
-        return await BuildBaseQuery(search, brand, isSugarFree, onlyFull)
+        return await BuildBaseQuery(search, brand, country, isSugarFree, onlyFull)
             .Select(ProjectToDto())
             .ToListAsync(ct);
     }
 
-    public async Task<PagedResult<EnergyDrinkDto>> GetPagedAsync(string? search, string? brand, bool? isSugarFree, bool onlyFull, int page, int pageSize, CancellationToken ct)
+    public async Task<PagedResult<EnergyDrinkDto>> GetPagedAsync(string? search, string? brand, string? country, bool? isSugarFree, bool onlyFull, int page, int pageSize, CancellationToken ct)
     {
         if (page < 1) page = 1;
         if (pageSize < 1) pageSize = 1;
         if (pageSize > 200) pageSize = 200;
 
-        var baseQuery = BuildBaseQuery(search, brand, isSugarFree, onlyFull);
+        var baseQuery = BuildBaseQuery(search, brand, country, isSugarFree, onlyFull);
         var total = await baseQuery.CountAsync(ct);
 
         var items = await baseQuery
@@ -46,7 +46,7 @@ public sealed class EnergyDrinkService : IEnergyDrinkService
         };
     }
 
-    private IQueryable<EnergyDrink> BuildBaseQuery(string? search, string? brand, bool? isSugarFree, bool onlyFull)
+    private IQueryable<EnergyDrink> BuildBaseQuery(string? search, string? brand, string? country, bool? isSugarFree, bool onlyFull)
     {
         var query = _db.EnergyDrinks.AsNoTracking().AsQueryable();
 
@@ -61,6 +61,12 @@ public sealed class EnergyDrinkService : IEnergyDrinkService
 
         if (!string.IsNullOrWhiteSpace(brand))
             query = query.Where(x => x.Brand == brand);
+
+        if (!string.IsNullOrWhiteSpace(country))
+        {
+            var code = country.Trim().ToUpperInvariant();
+            query = query.Where(x => x.Countries != null && x.Countries.Contains(code));
+        }
 
         if (isSugarFree.HasValue)
             query = query.Where(x => x.IsSugarFree == isSugarFree.Value);

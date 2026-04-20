@@ -4,8 +4,9 @@ namespace Energy.Api.Interfaces;
 
 public interface IEnergyDrinkService
 {
-    Task<List<EnergyDrinkDto>> GetAllAsync(string? search, string? brand, bool? isSugarFree, bool onlyFull, CancellationToken ct);
-    Task<PagedResult<EnergyDrinkDto>> GetPagedAsync(string? search, string? brand, bool? isSugarFree, bool onlyFull, int page, int pageSize, CancellationToken ct);
+    Task<List<EnergyDrinkDto>> GetAllAsync(string? search, string? brand, string? country, bool? isSugarFree, bool onlyFull, CancellationToken ct);
+
+    Task<PagedResult<EnergyDrinkDto>> GetPagedAsync(string? search, string? brand, string? country, bool? isSugarFree, bool onlyFull, int page, int pageSize, CancellationToken ct);
 
     Task<List<string>> GetBrandsAsync(CancellationToken ct);
 

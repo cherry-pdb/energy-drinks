@@ -18,20 +18,21 @@ public sealed class EnergyDrinksController : ControllerBase
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<ActionResult<List<EnergyDrinkDto>>> GetAll([FromQuery] string? search, [FromQuery] string? brand, [FromQuery] bool? isSugarFree, [FromQuery] bool onlyFull = true, CancellationToken ct = default)
-        => Ok(await _drinks.GetAllAsync(search, brand, isSugarFree, onlyFull, ct));
+    public async Task<ActionResult<List<EnergyDrinkDto>>> GetAll([FromQuery] string? search, [FromQuery] string? brand, [FromQuery] string? country, [FromQuery] bool? isSugarFree, [FromQuery] bool onlyFull = true, CancellationToken ct = default)
+        => Ok(await _drinks.GetAllAsync(search, brand, country, isSugarFree, onlyFull, ct));
 
     [HttpGet("paged")]
     [AllowAnonymous]
     public async Task<ActionResult<PagedResult<EnergyDrinkDto>>> GetPaged(
         [FromQuery] string? search,
         [FromQuery] string? brand,
+        [FromQuery] string? country,
         [FromQuery] bool? isSugarFree,
         [FromQuery] bool onlyFull = true,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 30,
         CancellationToken ct = default)
-        => Ok(await _drinks.GetPagedAsync(search, brand, isSugarFree, onlyFull, page, pageSize, ct));
+        => Ok(await _drinks.GetPagedAsync(search, brand, country, isSugarFree, onlyFull, page, pageSize, ct));
 
     [HttpGet("brands")]
     [AllowAnonymous]

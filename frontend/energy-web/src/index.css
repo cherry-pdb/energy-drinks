@@ -48,7 +48,7 @@ button, input, select { font: inherit; }
 .stat-card { padding: 20px; }
 .stat-label { color: #94a7c7; font-size: 14px; margin-bottom: 8px; }
 .stat-value { font-size: 32px; font-weight: 800; }
-.filter-bar { display: grid; grid-template-columns: 2fr 1fr auto auto; gap: 12px; padding: 16px; margin-bottom: 20px; }
+.filter-bar { display: grid; grid-template-columns: 2fr 1fr 1fr auto auto; gap: 12px; padding: 16px; margin-bottom: 20px; }
 .drink-list { display: grid; gap: 16px; }
 .drink-card { display: grid; grid-template-columns: 140px 1fr; gap: 18px; padding: 18px; align-items: stretch; }
 .drink-image-wrap { display: flex; height: 100%; align-items: flex-start; justify-content: center; }

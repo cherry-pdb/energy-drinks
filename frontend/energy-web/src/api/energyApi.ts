@@ -67,12 +67,14 @@ export async function login(payload: LoginRequest): Promise<LoginResponse> {
 export async function getEnergyDrinks(params?: {
   search?: string;
   brand?: string;
+  country?: string;
   isSugarFree?: boolean;
   onlyFull?: boolean;
 }): Promise<EnergyDrink[]> {
   const query = new URLSearchParams();
   if (params?.search) query.set('search', params.search);
   if (params?.brand) query.set('brand', params.brand);
+  if (params?.country) query.set('country', params.country);
   if (typeof params?.isSugarFree === 'boolean') query.set('isSugarFree', String(params.isSugarFree));
   if (typeof params?.onlyFull === 'boolean') query.set('onlyFull', String(params.onlyFull));
 
@@ -91,6 +93,7 @@ export type PagedResult<T> = {
 export async function getEnergyDrinksPaged(params: {
   search?: string;
   brand?: string;
+  country?: string;
   isSugarFree?: boolean;
   onlyFull?: boolean;
   page: number;
@@ -99,6 +102,7 @@ export async function getEnergyDrinksPaged(params: {
   const query = new URLSearchParams();
   if (params?.search) query.set('search', params.search);
   if (params?.brand) query.set('brand', params.brand);
+  if (params?.country) query.set('country', params.country);
   if (typeof params?.isSugarFree === 'boolean') query.set('isSugarFree', String(params.isSugarFree));
   if (typeof params?.onlyFull === 'boolean') query.set('onlyFull', String(params.onlyFull));
   query.set('page', String(params.page));
