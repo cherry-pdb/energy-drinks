@@ -10,9 +10,9 @@ public sealed class CreateEnergyDrinkRequest
     public decimal? Price { get; set; }
     public string? PriceCurrency { get; set; }
     public int Quantity { get; set; }
-    public int? CaffeineMg { get; set; }
-    public int? SugarGrams { get; set; }
-    public int? Calories { get; set; }
+    public decimal? CaffeineMg { get; set; }
+    public decimal? SugarGrams { get; set; }
+    public decimal? Calories { get; set; }
     public bool IsSugarFree { get; set; }
     public string[]? Countries { get; set; }
     public string? ImageUrl { get; set; }

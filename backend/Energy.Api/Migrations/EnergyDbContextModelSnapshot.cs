@@ -35,12 +35,14 @@ namespace Energy.Api.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("brand");
 
-                    b.Property<int?>("CaffeineMg")
-                        .HasColumnType("integer")
+                    b.Property<decimal?>("CaffeineMg")
+                        .HasPrecision(7, 2)
+                        .HasColumnType("numeric(7,2)")
                         .HasColumnName("caffeine_mg");
 
-                    b.Property<int?>("Calories")
-                        .HasColumnType("integer")
+                    b.Property<decimal?>("Calories")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("numeric(8,2)")
                         .HasColumnName("calories");
 
                     b.Property<int>("CanFillState")
@@ -92,8 +94,9 @@ namespace Energy.Api.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("quantity");
 
-                    b.Property<int?>("SugarGrams")
-                        .HasColumnType("integer")
+                    b.Property<decimal?>("SugarGrams")
+                        .HasPrecision(7, 2)
+                        .HasColumnType("numeric(7,2)")
                         .HasColumnName("sugar_grams");
 
                     b.Property<DateTime>("UpdatedAt")

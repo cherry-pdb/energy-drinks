@@ -25,9 +25,9 @@ public sealed class EnergyDbContext : DbContext
         entity.Property(x => x.Price).HasColumnName("price").HasPrecision(10, 2);
         entity.Property(x => x.PriceCurrency).HasColumnName("price_currency").HasMaxLength(3);
         entity.Property(x => x.Quantity).HasColumnName("quantity");
-        entity.Property(x => x.CaffeineMg).HasColumnName("caffeine_mg");
-        entity.Property(x => x.SugarGrams).HasColumnName("sugar_grams");
-        entity.Property(x => x.Calories).HasColumnName("calories");
+        entity.Property(x => x.CaffeineMg).HasColumnName("caffeine_mg").HasPrecision(7, 2);
+        entity.Property(x => x.SugarGrams).HasColumnName("sugar_grams").HasPrecision(7, 2);
+        entity.Property(x => x.Calories).HasColumnName("calories").HasPrecision(8, 2);
         entity.Property(x => x.IsSugarFree).HasColumnName("is_sugar_free");
         entity.Property(x => x.Countries).HasColumnName("countries").HasColumnType("text[]");
         entity.Property(x => x.ImageUrl).HasColumnName("image_url").HasMaxLength(1000);
