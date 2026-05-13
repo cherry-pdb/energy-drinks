@@ -83,6 +83,7 @@ public sealed class EnergyDrinkService : IEnergyDrinkService
                 : DateTime.MinValue)
             .ThenBy(x => x.Brand)
             .ThenBy(x => x.Line ?? string.Empty)
+            .ThenBy(x => x.Flavor ?? string.Empty)
             .ThenBy(x => x.Id);
     }
 
