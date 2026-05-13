@@ -280,6 +280,10 @@ button.input.country-filter-select-trigger {
   max-width: 100%;
 }
 
+.pagination-inner .button {
+  width: auto;
+}
+
 .pagination-page-btn {
   min-width: 42px;
   padding: 10px 12px;
