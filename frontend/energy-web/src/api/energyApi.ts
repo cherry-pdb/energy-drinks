@@ -88,6 +88,7 @@ export type PagedResult<T> = {
   page: number;
   pageSize: number;
   totalCount: number;
+  totalQuantitySum: number;
 };
 
 export async function getEnergyDrinksPaged(params: {
@@ -116,6 +117,12 @@ export async function getEnergyDrinksPaged(params: {
 export async function getBrands(): Promise<string[]> {
   const response = await apiFetch('/energy-drinks/brands');
   if (!response.ok) throw new Error('Failed to load brands');
+  return response.json();
+}
+
+export async function getCatalogCountries(): Promise<string[]> {
+  const response = await apiFetch('/energy-drinks/countries');
+  if (!response.ok) throw new Error('Failed to load countries');
   return response.json();
 }
 

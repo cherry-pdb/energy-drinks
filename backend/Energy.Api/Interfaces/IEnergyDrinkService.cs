@@ -10,6 +10,8 @@ public interface IEnergyDrinkService
 
     Task<List<string>> GetBrandsAsync(CancellationToken ct);
 
+    Task<List<string>> GetCatalogCountryCodesAsync(CancellationToken ct);
+
     Task<EnergyDrinkDto?> GetByIdAsync(Guid id, CancellationToken ct);
 
     Task<EnergyDrinkDto> CreateAsync(CreateEnergyDrinkRequest request, CancellationToken ct);

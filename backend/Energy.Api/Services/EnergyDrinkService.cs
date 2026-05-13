@@ -30,6 +30,7 @@ public sealed class EnergyDrinkService : IEnergyDrinkService
 
         var baseQuery = BuildBaseQuery(search, brand, country, isSugarFree, onlyFull);
         var total = await baseQuery.CountAsync(ct);
+        var totalQuantity = total == 0 ? 0 : await baseQuery.SumAsync(x => x.Quantity, ct);
 
         var items = await baseQuery
             .Skip((page - 1) * pageSize)
@@ -42,7 +43,8 @@ public sealed class EnergyDrinkService : IEnergyDrinkService
             Items = items,
             Page = page,
             PageSize = pageSize,
-            TotalCount = total
+            TotalCount = total,
+            TotalQuantitySum = totalQuantity
         };
     }
 
@@ -110,6 +112,22 @@ public sealed class EnergyDrinkService : IEnergyDrinkService
             .Distinct()
             .OrderBy(x => x)
             .ToListAsync(ct);
+
+    public async Task<List<string>> GetCatalogCountryCodesAsync(CancellationToken ct)
+    {
+        var arrays = await _db.EnergyDrinks.AsNoTracking()
+            .Where(x => x.Countries != null && x.Countries.Length > 0)
+            .Select(x => x.Countries!)
+            .ToListAsync(ct);
+
+        return arrays
+            .SelectMany(x => x)
+            .Select(x => x.Trim().ToUpperInvariant())
+            .Where(x => x.Length > 0)
+            .Distinct()
+            .OrderBy(x => x)
+            .ToList();
+    }
 
     public async Task<EnergyDrinkDto?> GetByIdAsync(Guid id, CancellationToken ct)
     {

@@ -1,17 +1,14 @@
-import { COUNTRIES } from '../data/countries';
-
 type Props = {
   search: string;
   selectedBrand: string;
   selectedCountry: string;
   sugarFreeOnly: boolean;
-  onlyActive: boolean;
   brands: string[];
+  countryOptions: { code: string; name: string }[];
   onSearchChange: (v: string) => void;
   onBrandChange: (v: string) => void;
   onCountryChange: (v: string) => void;
   onSugarFreeChange: (v: boolean) => void;
-  onOnlyActiveChange: (v: boolean) => void;
 };
 
 export function FilterBar(props: Props) {
@@ -24,12 +21,11 @@ export function FilterBar(props: Props) {
       </select>
       <select className="input" value={props.selectedCountry} onChange={(e) => props.onCountryChange(e.target.value)} aria-label="Country filter">
         <option value="">All countries</option>
-        {COUNTRIES.map((c) => (
+        {props.countryOptions.map((c) => (
           <option key={c.code} value={c.code}>{c.name}</option>
         ))}
       </select>
       <label className="checkbox-row"><input type="checkbox" checked={props.sugarFreeOnly} onChange={(e) => props.onSugarFreeChange(e.target.checked)} /> Sugar free only</label>
-      <label className="checkbox-row"><input type="checkbox" checked={props.onlyActive} onChange={(e) => props.onOnlyActiveChange(e.target.checked)} /> Only full</label>
     </section>
   );
 }

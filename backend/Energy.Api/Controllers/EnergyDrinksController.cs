@@ -39,6 +39,11 @@ public sealed class EnergyDrinksController : ControllerBase
     public async Task<ActionResult<List<string>>> GetBrands(CancellationToken ct)
         => Ok(await _drinks.GetBrandsAsync(ct));
 
+    [HttpGet("countries")]
+    [AllowAnonymous]
+    public async Task<ActionResult<List<string>>> GetCatalogCountries(CancellationToken ct)
+        => Ok(await _drinks.GetCatalogCountryCodesAsync(ct));
+
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
     public async Task<ActionResult<EnergyDrinkDto>> GetById(Guid id, CancellationToken ct)

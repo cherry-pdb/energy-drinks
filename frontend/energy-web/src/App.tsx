@@ -1,122 +1,106 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { deleteEnergyDrink, getAdminUsername, getBrands, getEnergyDrinksPaged, markEnergyDrinkDrank } from './api/energyApi';
+import { useEffect, useMemo, useState } from 'react';
+import { deleteEnergyDrink, getAdminUsername, getBrands, getCatalogCountries, getEnergyDrinksPaged, markEnergyDrinkDrank } from './api/energyApi';
 import { AdminAuthCard } from './components/AdminAuthCard';
 import { EnergyDrinkCard } from './components/EnergyDrinkCard';
 import { EnergyDrinkForm } from './components/EnergyDrinkForm';
 import { FilterBar } from './components/FilterBar';
 import { StatCard } from './components/StatCard';
 import { EnergyLogo } from './components/EnergyLogo';
+import { findCountry } from './data/countries';
 import type { EnergyDrink } from './types/energy';
+
+const PAGE_SIZE = 10;
 
 export default function App() {
   const [drinks, setDrinks] = useState<EnergyDrink[]>([]);
   const [brands, setBrands] = useState<string[]>([]);
+  const [catalogCountryCodes, setCatalogCountryCodes] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [selectedBrand, setSelectedBrand] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('');
   const [sugarFreeOnly, setSugarFreeOnly] = useState(false);
-  const [onlyFull, setOnlyFull] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
   const [authVersion, setAuthVersion] = useState(0);
   const [editingDrink, setEditingDrink] = useState<EnergyDrink | null>(null);
   const [actionError, setActionError] = useState('');
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const totalCountRef = useRef<number | null>(null);
-  const loadKeyRef = useRef(0);
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalQuantitySum, setTotalQuantitySum] = useState(0);
   const isAdmin = Boolean(getAdminUsername());
-  const pageSize = 30;
 
-  async function loadFirstPage() {
-    setLoading(true);
-    setActionError('');
-    setHasMore(true);
-    setPage(1);
-    totalCountRef.current = null;
-    const loadKey = ++loadKeyRef.current;
-
-    try {
-      const [paged, brandsData] = await Promise.all([
-        getEnergyDrinksPaged({
-          search: search || undefined,
-          brand: selectedBrand || undefined,
-          country: selectedCountry || undefined,
-          isSugarFree: sugarFreeOnly ? true : undefined,
-          onlyFull,
-          page: 1,
-          pageSize,
-        }),
-        getBrands(),
-      ]);
-
-      if (loadKey !== loadKeyRef.current) return;
-
-      setDrinks(paged.items);
-      setBrands(brandsData);
-      totalCountRef.current = paged.totalCount;
-      setHasMore(paged.items.length < paged.totalCount);
-    } finally {
-      if (loadKey === loadKeyRef.current) setLoading(false);
-    }
-  }
-
-  async function loadNextPage() {
-    if (loading || loadingMore || !hasMore) return;
-    setLoadingMore(true);
-    setActionError('');
-    const nextPage = page + 1;
-    const loadKey = loadKeyRef.current;
-
-    try {
-      const paged = await getEnergyDrinksPaged({
-        search: search || undefined,
-        brand: selectedBrand || undefined,
-        country: selectedCountry || undefined,
-        isSugarFree: sugarFreeOnly ? true : undefined,
-        onlyFull,
-        page: nextPage,
-        pageSize,
-      });
-
-      if (loadKey !== loadKeyRef.current) return;
-      setDrinks((prev) => {
-        const next = [...prev, ...paged.items];
-        setHasMore(next.length < paged.totalCount);
-        return next;
-      });
-      setPage(nextPage);
-      totalCountRef.current = paged.totalCount;
-    } finally {
-      if (loadKey === loadKeyRef.current) setLoadingMore(false);
-    }
-  }
-
-  useEffect(() => { loadFirstPage(); }, [search, selectedBrand, selectedCountry, sugarFreeOnly, onlyFull, authVersion]);
+  const countryOptions = useMemo(
+    () =>
+      catalogCountryCodes
+        .map((code) => ({ code, name: findCountry(code)?.name ?? code }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [catalogCountryCodes]
+  );
 
   useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) loadNextPage();
-      },
-      { root: null, rootMargin: '600px 0px', threshold: 0.01 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [hasMore, loading, loadingMore, page, search, selectedBrand, selectedCountry, sugarFreeOnly, onlyFull]);
+    if (selectedCountry && !catalogCountryCodes.includes(selectedCountry)) {
+      setSelectedCountry('');
+    }
+  }, [catalogCountryCodes, selectedCountry]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadData() {
+      setLoading(true);
+      setActionError('');
+
+      try {
+        const [paged, brandsData, countriesData] = await Promise.all([
+          getEnergyDrinksPaged({
+            search: search || undefined,
+            brand: selectedBrand || undefined,
+            country: selectedCountry || undefined,
+            isSugarFree: sugarFreeOnly ? true : undefined,
+            onlyFull: false,
+            page,
+            pageSize: PAGE_SIZE,
+          }),
+          getBrands(),
+          getCatalogCountries(),
+        ]);
+
+        if (cancelled) return;
+        setDrinks(paged.items);
+        setBrands(brandsData);
+        setCatalogCountryCodes(countriesData);
+        setTotalCount(paged.totalCount);
+        setTotalQuantitySum(paged.totalQuantitySum);
+      } catch (err) {
+        if (!cancelled) {
+          setActionError(err instanceof Error ? err.message : 'Failed to load');
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void loadData();
+    return () => {
+      cancelled = true;
+    };
+  }, [page, search, selectedBrand, selectedCountry, sugarFreeOnly, authVersion]);
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   const stats = useMemo(() => {
-    const totalStock = drinks.reduce((sum, x) => sum + x.quantity, 0);
     const sugarFree = drinks.filter((x) => x.isSugarFree).length;
     const expiringSoon = drinks.filter((x) => {
       if (!x.expirationDate) return false;
       const days = Math.ceil((new Date(x.expirationDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
       return days <= 30;
     }).length;
-    return { totalItems: drinks.length, totalStock, sugarFree, expiringSoon };
+    return { sugarFree, expiringSoon };
   }, [drinks]);
 
   async function handleDelete(drink: EnergyDrink) {
@@ -129,7 +113,7 @@ export default function App() {
       if (editingDrink?.id === drink.id) {
         setEditingDrink(null);
       }
-      await loadFirstPage();
+      setAuthVersion((v) => v + 1);
     } catch (err) {
       setActionError(err instanceof Error ? err.message : 'Delete failed');
     }
@@ -139,7 +123,7 @@ export default function App() {
     setActionError('');
     try {
       await markEnergyDrinkDrank(drink.id);
-      await loadFirstPage();
+      setAuthVersion((v) => v + 1);
     } catch (err) {
       setActionError(err instanceof Error ? err.message : 'Update failed');
     }
@@ -148,6 +132,11 @@ export default function App() {
   function handleEdit(drink: EnergyDrink) {
     setEditingDrink(drink);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function reloadAfterSave() {
+    setPage(1);
+    setAuthVersion((v) => v + 1);
   }
 
   return (
@@ -165,7 +154,7 @@ export default function App() {
         <AdminAuthCard onAuthChanged={() => { setAuthVersion((x) => x + 1); setEditingDrink(null); }} />
         {isAdmin ? (
           <EnergyDrinkForm
-            onSaved={loadFirstPage}
+            onSaved={reloadAfterSave}
             editingDrink={editingDrink}
             onCancelEdit={() => setEditingDrink(null)}
           />
@@ -187,10 +176,10 @@ export default function App() {
         </section>
 
         <section className="stats-grid">
-          <StatCard label="Visible items" value={stats.totalItems} />
-          <StatCard label="Total stock" value={stats.totalStock} />
-          <StatCard label="Sugar free" value={stats.sugarFree} />
-          <StatCard label="Expiring soon" value={stats.expiringSoon} hint="Within 30 days" />
+          <StatCard label="Matching drinks" value={totalCount} />
+          <StatCard label="Total stock" value={totalQuantitySum} hint="All matching filters" />
+          <StatCard label="Sugar free" value={stats.sugarFree} hint="On this page" />
+          <StatCard label="Expiring soon" value={stats.expiringSoon} hint="On this page · within 30 days" />
         </section>
 
         <FilterBar
@@ -198,13 +187,24 @@ export default function App() {
           selectedBrand={selectedBrand}
           selectedCountry={selectedCountry}
           sugarFreeOnly={sugarFreeOnly}
-          onlyActive={onlyFull}
           brands={brands}
-          onSearchChange={setSearch}
-          onBrandChange={setSelectedBrand}
-          onCountryChange={setSelectedCountry}
-          onSugarFreeChange={setSugarFreeOnly}
-          onOnlyActiveChange={setOnlyFull}
+          countryOptions={countryOptions}
+          onSearchChange={(v) => {
+            setPage(1);
+            setSearch(v);
+          }}
+          onBrandChange={(v) => {
+            setPage(1);
+            setSelectedBrand(v);
+          }}
+          onCountryChange={(v) => {
+            setPage(1);
+            setSelectedCountry(v);
+          }}
+          onSugarFreeChange={(v) => {
+            setPage(1);
+            setSugarFreeOnly(v);
+          }}
         />
 
         {actionError ? <div className="form-error panel-error">{actionError}</div> : null}
@@ -214,21 +214,42 @@ export default function App() {
         ) : drinks.length === 0 ? (
           <div className="empty-state">No drinks found</div>
         ) : (
-          <section className="drink-list">
-            {drinks.map((drink) => (
-              <EnergyDrinkCard
-                key={drink.id}
-                drink={drink}
-                isAdmin={isAdmin}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onDrank={handleDrank}
-              />
-            ))}
-            <div ref={sentinelRef} />
-            {loadingMore ? <div className="empty-state">Loading more…</div> : null}
-            {!hasMore ? <div className="empty-state">End of list</div> : null}
-          </section>
+          <>
+            <section className="drink-list">
+              {drinks.map((drink) => (
+                <EnergyDrinkCard
+                  key={drink.id}
+                  drink={drink}
+                  isAdmin={isAdmin}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onDrank={handleDrank}
+                />
+              ))}
+            </section>
+            <nav className="pagination-bar" aria-label="Pagination">
+              <button
+                type="button"
+                className="button button-secondary pagination-btn"
+                disabled={page <= 1 || loading}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                Previous
+              </button>
+              <span className="pagination-meta">
+                Page {page} of {totalPages}
+                <span className="pagination-count"> ({totalCount} total)</span>
+              </span>
+              <button
+                type="button"
+                className="button button-secondary pagination-btn"
+                disabled={page >= totalPages || loading}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              >
+                Next
+              </button>
+            </nav>
+          </>
         )}
       </main>
     </div>
