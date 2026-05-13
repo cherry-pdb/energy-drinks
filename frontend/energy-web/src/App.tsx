@@ -11,6 +11,26 @@ import type { EnergyDrink } from './types/energy';
 
 const PAGE_SIZE = 10;
 
+type PageNavItem = number | 'gap';
+
+function buildPaginationItems(current: number, total: number): PageNavItem[] {
+  if (total < 1) return [];
+  if (total <= 9) return Array.from({ length: total }, (_, i) => i + 1);
+  const set = new Set<number>([1, total]);
+  for (let d = -1; d <= 1; d++) {
+    const p = current + d;
+    if (p >= 1 && p <= total) set.add(p);
+  }
+  const sorted = [...set].sort((a, b) => a - b);
+  const out: PageNavItem[] = [];
+  for (let i = 0; i < sorted.length; i++) {
+    const p = sorted[i]!;
+    if (i > 0 && p - sorted[i - 1]! > 1) out.push('gap');
+    out.push(p);
+  }
+  return out;
+}
+
 export default function App() {
   const [drinks, setDrinks] = useState<EnergyDrink[]>([]);
   const [brands, setBrands] = useState<string[]>([]);
@@ -87,6 +107,8 @@ export default function App() {
   }, [page, search, selectedBrand, selectedCountry, sugarFreeOnly, onlyFull, authVersion]);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+
+  const paginationItems = useMemo(() => buildPaginationItems(page, totalPages), [page, totalPages]);
 
   useEffect(() => {
     if (page > totalPages) {
@@ -234,26 +256,49 @@ export default function App() {
               ))}
             </section>
             <nav className="pagination-bar" aria-label="Pagination">
-              <button
-                type="button"
-                className="button button-secondary pagination-btn"
-                disabled={page <= 1 || loading}
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-              >
-                Previous
-              </button>
+              <div className="pagination-inner">
+                <button
+                  type="button"
+                  className="button button-secondary pagination-btn"
+                  disabled={page <= 1 || loading}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  Previous
+                </button>
+                <div className="pagination-pages" role="group" aria-label="Go to page">
+                  {paginationItems.map((item, idx) =>
+                    item === 'gap' ? (
+                      <span key={`gap-${idx}`} className="pagination-gap" aria-hidden>
+                        …
+                      </span>
+                    ) : (
+                      <button
+                        key={item}
+                        type="button"
+                        className={`button button-secondary pagination-page-btn${page === item ? ' is-current' : ''}`}
+                        disabled={loading}
+                        onClick={() => setPage(item)}
+                        aria-label={`Page ${item}`}
+                        aria-current={page === item ? 'page' : undefined}
+                      >
+                        {item}
+                      </button>
+                    )
+                  )}
+                </div>
+                <button
+                  type="button"
+                  className="button button-secondary pagination-btn"
+                  disabled={page >= totalPages || loading}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                >
+                  Next
+                </button>
+              </div>
               <span className="pagination-meta">
                 Page {page} of {totalPages}
                 <span className="pagination-count"> ({totalCount} total)</span>
               </span>
-              <button
-                type="button"
-                className="button button-secondary pagination-btn"
-                disabled={page >= totalPages || loading}
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              >
-                Next
-              </button>
             </nav>
           </>
         )}

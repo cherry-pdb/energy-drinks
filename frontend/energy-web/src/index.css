@@ -252,15 +252,52 @@ button.input.country-filter-select-trigger {
 
 .pagination-bar {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 16px;
+  gap: 14px;
   margin-top: 20px;
   padding: 16px 20px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
   border-radius: 24px;
+}
+
+.pagination-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 12px;
+  width: 100%;
+}
+
+.pagination-pages {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.pagination-page-btn {
+  min-width: 42px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.pagination-page-btn.is-current {
+  border: 1px solid var(--accent-1);
+  box-shadow: 0 0 0 2px var(--focus-ring);
+  color: #fff;
+}
+
+.pagination-gap {
+  padding: 0 2px;
+  color: #7a8aad;
+  font-size: 14px;
+  user-select: none;
 }
 
 .pagination-btn {
