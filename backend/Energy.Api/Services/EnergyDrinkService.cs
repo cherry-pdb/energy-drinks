@@ -77,9 +77,12 @@ public sealed class EnergyDrinkService : IEnergyDrinkService
             query = query.Where(x => x.CanFillState == CanFillState.Full);
 
         return query
-            .OrderBy(x => x.ExpirationDate == null)
-            .ThenBy(x => x.ExpirationDate)
+            .OrderBy(x => x.CanFillState != CanFillState.Full)
+            .ThenBy(x => x.CanFillState == CanFillState.Full
+                ? (x.ExpirationDate ?? DateTime.MaxValue)
+                : DateTime.MinValue)
             .ThenBy(x => x.Brand)
+            .ThenBy(x => x.Line ?? string.Empty)
             .ThenBy(x => x.Id);
     }
 
