@@ -48,7 +48,99 @@ button, input, select { font: inherit; }
 .stat-card { padding: 20px; }
 .stat-label { color: #94a7c7; font-size: 14px; margin-bottom: 8px; }
 .stat-value { font-size: 32px; font-weight: 800; }
-.filter-bar { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; padding: 16px; margin-bottom: 20px; }
+.filter-bar { display: grid; grid-template-columns: 2fr 1fr 1fr auto auto; gap: 12px; padding: 16px; margin-bottom: 20px; }
+
+.country-filter-select {
+  position: relative;
+  min-width: 0;
+}
+
+button.input.country-filter-select-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+}
+
+.country-filter-select-flag-slot {
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+}
+
+.country-filter-select-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.country-filter-select-chevron {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 10px;
+  opacity: 0.55;
+  color: #9db0cf;
+}
+
+.country-filter-select-dropdown {
+  position: absolute;
+  z-index: 1000;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 18, 32, 0.98);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+}
+
+.country-filter-select-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.country-filter-select-option:last-child {
+  border-bottom: 0;
+}
+
+.country-filter-select-option:hover,
+.country-filter-select-option:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+  outline: none;
+}
+
+.country-filter-select-option.is-active {
+  background: rgba(255, 159, 28, 0.1);
+}
+
+.country-filter-select-option-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.country-filter-select-code {
+  flex-shrink: 0;
+  font-size: 12px;
+}
 .drink-list { display: grid; gap: 16px; }
 .drink-card { display: grid; grid-template-columns: 140px 1fr; gap: 18px; padding: 18px; align-items: stretch; }
 .drink-image-wrap { height: 100%; overflow: hidden; border-radius: 18px; background: rgba(255,255,255,.03); }

@@ -19,6 +19,7 @@ export default function App() {
   const [selectedBrand, setSelectedBrand] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('');
   const [sugarFreeOnly, setSugarFreeOnly] = useState(false);
+  const [onlyFull, setOnlyFull] = useState(false);
   const [loading, setLoading] = useState(true);
   const [authVersion, setAuthVersion] = useState(0);
   const [editingDrink, setEditingDrink] = useState<EnergyDrink | null>(null);
@@ -56,7 +57,7 @@ export default function App() {
             brand: selectedBrand || undefined,
             country: selectedCountry || undefined,
             isSugarFree: sugarFreeOnly ? true : undefined,
-            onlyFull: false,
+            onlyFull,
             page,
             pageSize: PAGE_SIZE,
           }),
@@ -83,7 +84,7 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, [page, search, selectedBrand, selectedCountry, sugarFreeOnly, authVersion]);
+  }, [page, search, selectedBrand, selectedCountry, sugarFreeOnly, onlyFull, authVersion]);
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
@@ -187,6 +188,7 @@ export default function App() {
           selectedBrand={selectedBrand}
           selectedCountry={selectedCountry}
           sugarFreeOnly={sugarFreeOnly}
+          onlyFull={onlyFull}
           brands={brands}
           countryOptions={countryOptions}
           onSearchChange={(v) => {
@@ -204,6 +206,10 @@ export default function App() {
           onSugarFreeChange={(v) => {
             setPage(1);
             setSugarFreeOnly(v);
+          }}
+          onOnlyFullChange={(v) => {
+            setPage(1);
+            setOnlyFull(v);
           }}
         />
 
