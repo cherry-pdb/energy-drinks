@@ -49,23 +49,41 @@ button, input, select { font: inherit; }
 .stat-label { color: #94a7c7; font-size: 14px; margin-bottom: 8px; }
 .stat-value { font-size: 32px; font-weight: 800; }
 .filter-bar {
-  display: grid;
-  grid-template-columns:
-    minmax(12rem, min(40rem, 1fr))
-    minmax(11rem, 15.5rem)
-    minmax(11rem, 15.5rem)
-    auto auto;
-  gap: 12px;
-  padding: 16px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: clamp(8px, 1.2vw, 14px);
+  padding: 12px clamp(12px, 2vw, 18px);
   margin-bottom: 20px;
   position: relative;
   z-index: 20;
-  align-items: center;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: thin;
 }
 
 .filter-bar-search {
-  width: 100%;
+  flex: 1 1 12rem;
+  min-width: 7.5rem;
+  max-width: min(26rem, 100%);
+  width: auto;
+}
+
+.filter-bar-cluster {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: clamp(6px, 1vw, 12px);
   min-width: 0;
+  margin-left: auto;
+}
+
+.filter-bar .filter-bar-toggle {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .filter-bar-search::placeholder {
@@ -75,10 +93,34 @@ button, input, select { font: inherit; }
 
 .country-filter-select {
   position: relative;
-  min-width: 0;
-  width: 100%;
-  max-width: 15.75rem;
-  justify-self: start;
+  flex: 0 0 auto;
+  width: clamp(8.5rem, 12vw, 13.5rem);
+  min-width: 8rem;
+  max-width: 13.5rem;
+  min-height: 0;
+}
+
+@media (max-width: 700px) {
+  .filter-bar {
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+
+  .filter-bar-search {
+    flex: 1 1 100%;
+    max-width: none;
+    width: 100%;
+    margin-right: 0;
+  }
+
+  .filter-bar-cluster {
+    flex: 1 1 100%;
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
 }
 
 button.input.country-filter-select-trigger {
@@ -231,7 +273,6 @@ button.input.country-filter-select-trigger {
   }
   .main-content { padding-top: 18px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .filter-bar { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 760px) {
