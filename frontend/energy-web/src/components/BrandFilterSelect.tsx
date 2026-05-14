@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { FilterSelectPortalDropdown } from './FilterSelectPortalDropdown';
 
 type Props = {
   value: string;
@@ -53,7 +54,8 @@ function BrandFilterIcon({ brand }: { brand: string }) {
 
 export function BrandFilterSelect({ value, brands, onChange, 'aria-label': ariaLabel = 'Brand filter' }: Props) {
   const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const selectedLabel = useMemo(() => {
     if (!value) return null;
@@ -63,8 +65,8 @@ export function BrandFilterSelect({ value, brands, onChange, 'aria-label': ariaL
   useEffect(() => {
     if (!open) return;
     function onDocMouseDown(e: MouseEvent) {
-      const el = rootRef.current;
-      if (!el || el.contains(e.target as Node)) return;
+      const t = e.target as Node;
+      if (triggerRef.current?.contains(t) || dropdownRef.current?.contains(t)) return;
       setOpen(false);
     }
     document.addEventListener('mousedown', onDocMouseDown);
@@ -81,8 +83,9 @@ export function BrandFilterSelect({ value, brands, onChange, 'aria-label': ariaL
   }, [open]);
 
   return (
-    <div ref={rootRef} className="country-filter-select">
+    <div className="country-filter-select">
       <button
+        ref={triggerRef}
         type="button"
         className="input country-filter-select-trigger"
         aria-label={ariaLabel}
@@ -99,47 +102,41 @@ export function BrandFilterSelect({ value, brands, onChange, 'aria-label': ariaL
         </span>
       </button>
 
-      {open ? (
-        <div
-          role="listbox"
-          className="country-filter-select-dropdown"
-          onMouseDown={(e) => e.preventDefault()}
+      <FilterSelectPortalDropdown open={open} anchorRef={triggerRef} panelRef={dropdownRef} className="country-filter-select-dropdown">
+        <button
+          type="button"
+          role="option"
+          aria-selected={value === ''}
+          className={`country-filter-select-option${value === '' ? ' is-active' : ''}`}
+          onClick={() => {
+            onChange('');
+            setOpen(false);
+          }}
         >
+          <span className="country-filter-select-flag-slot" aria-hidden />
+          <span className="country-filter-select-option-text">All brands</span>
+          <span className="country-filter-select-code country-filter-select-code-spacer muted" aria-hidden />
+        </button>
+        {brands.map((b) => (
           <button
+            key={b}
             type="button"
             role="option"
-            aria-selected={value === ''}
-            className={`country-filter-select-option${value === '' ? ' is-active' : ''}`}
+            aria-selected={value === b}
+            className={`country-filter-select-option${value === b ? ' is-active' : ''}`}
             onClick={() => {
-              onChange('');
+              onChange(b);
               setOpen(false);
             }}
           >
-            <span className="country-filter-select-flag-slot" aria-hidden />
-            <span className="country-filter-select-option-text">All brands</span>
+            <span className="country-filter-select-flag-slot" aria-hidden>
+              <BrandFilterIcon brand={b} />
+            </span>
+            <span className="country-filter-select-option-text">{b}</span>
             <span className="country-filter-select-code country-filter-select-code-spacer muted" aria-hidden />
           </button>
-          {brands.map((b) => (
-            <button
-              key={b}
-              type="button"
-              role="option"
-              aria-selected={value === b}
-              className={`country-filter-select-option${value === b ? ' is-active' : ''}`}
-              onClick={() => {
-                onChange(b);
-                setOpen(false);
-              }}
-            >
-              <span className="country-filter-select-flag-slot" aria-hidden>
-                <BrandFilterIcon brand={b} />
-              </span>
-              <span className="country-filter-select-option-text">{b}</span>
-              <span className="country-filter-select-code country-filter-select-code-spacer muted" aria-hidden />
-            </button>
-          ))}
-        </div>
-      ) : null}
+        ))}
+      </FilterSelectPortalDropdown>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { FilterSelectPortalDropdown } from './FilterSelectPortalDropdown';
 import { FlagIcon } from './FlagIcon';
 
 type Option = { code: string; name: string };
@@ -12,15 +13,16 @@ type Props = {
 
 export function CountryFilterSelect({ value, options, onChange, 'aria-label': ariaLabel = 'Country filter' }: Props) {
   const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const selected = useMemo(() => options.find((o) => o.code === value) ?? null, [options, value]);
 
   useEffect(() => {
     if (!open) return;
     function onDocMouseDown(e: MouseEvent) {
-      const el = rootRef.current;
-      if (!el || el.contains(e.target as Node)) return;
+      const t = e.target as Node;
+      if (triggerRef.current?.contains(t) || dropdownRef.current?.contains(t)) return;
       setOpen(false);
     }
     document.addEventListener('mousedown', onDocMouseDown);
@@ -37,8 +39,9 @@ export function CountryFilterSelect({ value, options, onChange, 'aria-label': ar
   }, [open]);
 
   return (
-    <div ref={rootRef} className="country-filter-select">
+    <div className="country-filter-select">
       <button
+        ref={triggerRef}
         type="button"
         className="input country-filter-select-trigger"
         aria-label={ariaLabel}
@@ -55,46 +58,40 @@ export function CountryFilterSelect({ value, options, onChange, 'aria-label': ar
         </span>
       </button>
 
-      {open ? (
-        <div
-          role="listbox"
-          className="country-filter-select-dropdown"
-          onMouseDown={(e) => e.preventDefault()}
+      <FilterSelectPortalDropdown open={open} anchorRef={triggerRef} panelRef={dropdownRef} className="country-filter-select-dropdown">
+        <button
+          type="button"
+          role="option"
+          aria-selected={value === ''}
+          className={`country-filter-select-option${value === '' ? ' is-active' : ''}`}
+          onClick={() => {
+            onChange('');
+            setOpen(false);
+          }}
         >
+          <span className="country-filter-select-flag-slot" aria-hidden />
+          <span className="country-filter-select-option-text">All countries</span>
+        </button>
+        {options.map((c) => (
           <button
+            key={c.code}
             type="button"
             role="option"
-            aria-selected={value === ''}
-            className={`country-filter-select-option${value === '' ? ' is-active' : ''}`}
+            aria-selected={value === c.code}
+            className={`country-filter-select-option${value === c.code ? ' is-active' : ''}`}
             onClick={() => {
-              onChange('');
+              onChange(c.code);
               setOpen(false);
             }}
           >
-            <span className="country-filter-select-flag-slot" aria-hidden />
-            <span className="country-filter-select-option-text">All countries</span>
+            <span className="country-filter-select-flag-slot" aria-hidden>
+              <FlagIcon code={c.code} size={22} />
+            </span>
+            <span className="country-filter-select-option-text">{c.name}</span>
+            <span className="country-filter-select-code muted">{c.code}</span>
           </button>
-          {options.map((c) => (
-            <button
-              key={c.code}
-              type="button"
-              role="option"
-              aria-selected={value === c.code}
-              className={`country-filter-select-option${value === c.code ? ' is-active' : ''}`}
-              onClick={() => {
-                onChange(c.code);
-                setOpen(false);
-              }}
-            >
-              <span className="country-filter-select-flag-slot" aria-hidden>
-                <FlagIcon code={c.code} size={22} />
-              </span>
-              <span className="country-filter-select-option-text">{c.name}</span>
-              <span className="country-filter-select-code muted">{c.code}</span>
-            </button>
-          ))}
-        </div>
-      ) : null}
+        ))}
+      </FilterSelectPortalDropdown>
     </div>
   );
 }

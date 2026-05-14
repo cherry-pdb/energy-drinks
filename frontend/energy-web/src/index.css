@@ -160,12 +160,7 @@ button.input.country-filter-select-trigger {
 }
 
 .country-filter-select-dropdown {
-  position: absolute;
-  z-index: 50;
-  left: 0;
-  right: 0;
-  margin-top: 8px;
-  max-height: 280px;
+  box-sizing: border-box;
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
