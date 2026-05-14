@@ -7,12 +7,47 @@ type Props = {
   'aria-label'?: string;
 };
 
+const DEFAULT_BRAND_ICONS_BASE = 'https://energy.nmv-services.ru/s3/icons';
+
+function brandIconUrl(brand: string): string {
+  const slug = brand.trim().toLowerCase().replace(/\s+/g, '');
+  if (!slug) return '';
+  const base = (import.meta.env.VITE_BRAND_ICONS_BASE_URL ?? DEFAULT_BRAND_ICONS_BASE).replace(/\/$/, '');
+  return `${base}/${slug}.svg`;
+}
+
 function BrandMonogram({ brand }: { brand: string }) {
   const ch = brand.trim().charAt(0).toUpperCase() || '?';
   return (
     <span className="brand-filter-monogram" aria-hidden>
       {ch}
     </span>
+  );
+}
+
+function BrandFilterIcon({ brand }: { brand: string }) {
+  const url = useMemo(() => brandIconUrl(brand), [brand]);
+  const [broken, setBroken] = useState(false);
+
+  useEffect(() => {
+    setBroken(false);
+  }, [brand, url]);
+
+  if (!url || broken) {
+    return <BrandMonogram brand={brand} />;
+  }
+
+  return (
+    <img
+      src={url}
+      alt=""
+      className="brand-filter-icon"
+      width={22}
+      height={22}
+      loading="lazy"
+      decoding="async"
+      onError={() => setBroken(true)}
+    />
   );
 }
 
@@ -56,7 +91,7 @@ export function BrandFilterSelect({ value, brands, onChange, 'aria-label': ariaL
         onClick={() => setOpen((o) => !o)}
       >
         <span className="country-filter-select-flag-slot" aria-hidden>
-          {selectedLabel ? <BrandMonogram brand={selectedLabel} /> : null}
+          {selectedLabel ? <BrandFilterIcon brand={selectedLabel} /> : null}
         </span>
         <span className="country-filter-select-label">{selectedLabel ?? 'All brands'}</span>
         <span className="country-filter-select-chevron" aria-hidden>
@@ -97,7 +132,7 @@ export function BrandFilterSelect({ value, brands, onChange, 'aria-label': ariaL
               }}
             >
               <span className="country-filter-select-flag-slot" aria-hidden>
-                <BrandMonogram brand={b} />
+                <BrandFilterIcon brand={b} />
               </span>
               <span className="country-filter-select-option-text">{b}</span>
               <span className="country-filter-select-code country-filter-select-code-spacer muted" aria-hidden />
