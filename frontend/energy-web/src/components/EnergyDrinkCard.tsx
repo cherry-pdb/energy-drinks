@@ -1,18 +1,12 @@
 import type { EnergyDrink } from '../types/energy';
 import { findCountry } from '../data/countries';
 import { FlagIcon } from './FlagIcon';
+import { calendarDaysSinceExpiration, calendarDaysUntilExpiration } from '../utils/expirationCalendar';
 
 function formatPrice(price: number, currency: EnergyDrink['priceCurrency']) {
   const code = currency ?? 'USD';
   const symbol = code === 'EUR' ? '€' : code === 'RUB' ? '₽' : '$';
   return `${symbol}${price}`;
-}
-
-function daysUntilExpiration(date: string) {
-  const now = new Date();
-  const expiration = new Date(date);
-  const diffMs = expiration.getTime() - now.getTime();
-  return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 }
 
 type Props = {
@@ -24,8 +18,19 @@ type Props = {
 };
 
 export function EnergyDrinkCard({ drink, isAdmin = false, onEdit, onDelete, onDrank }: Props) {
-  const daysLeft = drink.expirationDate ? daysUntilExpiration(drink.expirationDate) : null;
-  const isExpiringSoon = drink.canFillState !== 'Empty' && daysLeft != null && daysLeft <= 30;
+  const daysSinceExpiration =
+    drink.expirationDate && drink.canFillState !== 'Empty' ? calendarDaysSinceExpiration(drink.expirationDate) : null;
+  const daysUntilExpiration =
+    drink.expirationDate && drink.canFillState !== 'Empty' ? calendarDaysUntilExpiration(drink.expirationDate) : null;
+
+  const isExpired = daysSinceExpiration != null && daysSinceExpiration >= 1;
+  const isExpiringSoon =
+    drink.canFillState !== 'Empty' &&
+    drink.expirationDate != null &&
+    !isExpired &&
+    daysUntilExpiration != null &&
+    daysUntilExpiration >= 0 &&
+    daysUntilExpiration <= 30;
 
   const countries = (drink.countries ?? []).filter(Boolean);
   const countryLabel = countries.length ? (
@@ -64,6 +69,11 @@ export function EnergyDrinkCard({ drink, isAdmin = false, onEdit, onDelete, onDr
           <div className="drink-badges">
             {drink.isSugarFree ? <span className="badge badge-green">Sugar free</span> : null}
             {drink.canFillState === 'Empty' ? <span className="badge badge-gray">Empty can</span> : null}
+            {isExpired && daysSinceExpiration != null ? (
+              <span className="badge badge-red">
+                Expired {daysSinceExpiration} {daysSinceExpiration === 1 ? 'day' : 'days'} ago
+              </span>
+            ) : null}
             {isExpiringSoon ? <span className="badge badge-red">Expires soon</span> : null}
           </div>
         </div>
@@ -82,7 +92,7 @@ export function EnergyDrinkCard({ drink, isAdmin = false, onEdit, onDelete, onDr
           {drink.canFillState === 'Empty' || !drink.expirationDate ? (
             <span className="muted">Empty can</span>
           ) : (
-            <span className={isExpiringSoon ? 'danger' : 'muted'}>
+            <span className={isExpiringSoon || isExpired ? 'danger' : 'muted'}>
               Expires: {new Date(drink.expirationDate).toLocaleDateString()}
             </span>
           )}

@@ -8,6 +8,7 @@ import { StatCard } from './components/StatCard';
 import { EnergyLogo } from './components/EnergyLogo';
 import { findCountry } from './data/countries';
 import type { EnergyDrink } from './types/energy';
+import { calendarDaysSinceExpiration, calendarDaysUntilExpiration } from './utils/expirationCalendar';
 
 const PAGE_SIZE = 10;
 
@@ -119,9 +120,10 @@ export default function App() {
   const stats = useMemo(() => {
     const sugarFree = drinks.filter((x) => x.isSugarFree).length;
     const expiringSoon = drinks.filter((x) => {
-      if (!x.expirationDate) return false;
-      const days = Math.ceil((new Date(x.expirationDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-      return days <= 30;
+      if (!x.expirationDate || x.canFillState === 'Empty') return false;
+      if (calendarDaysSinceExpiration(x.expirationDate) >= 1) return false;
+      const d = calendarDaysUntilExpiration(x.expirationDate);
+      return d >= 0 && d <= 30;
     }).length;
     return { sugarFree, expiringSoon };
   }, [drinks]);
