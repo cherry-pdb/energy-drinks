@@ -19,7 +19,7 @@ type Props = {
 export function FilterBar(props: Props) {
   return (
     <section className="filter-bar">
-      <input className="input" placeholder="Search by brand, line or flavor" value={props.search} onChange={(e) => props.onSearchChange(e.target.value)} />
+      <input className="input filter-bar-search" placeholder="Search by name" value={props.search} onChange={(e) => props.onSearchChange(e.target.value)} />
       <BrandFilterSelect
         value={props.selectedBrand}
         brands={props.brands}

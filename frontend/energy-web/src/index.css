@@ -50,12 +50,17 @@ button, input, select { font: inherit; }
 .stat-value { font-size: 32px; font-weight: 800; }
 .filter-bar {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr auto auto;
+  grid-template-columns: minmax(11rem, 16rem) minmax(0, 1fr) minmax(0, 1fr) auto auto;
   gap: 12px;
   padding: 16px;
   margin-bottom: 20px;
   position: relative;
   z-index: 20;
+}
+
+.filter-bar-search::placeholder {
+  color: #a8b9d4;
+  opacity: 1;
 }
 
 .country-filter-select {
