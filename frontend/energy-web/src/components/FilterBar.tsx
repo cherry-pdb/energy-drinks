@@ -32,8 +32,8 @@ export function FilterBar(props: Props) {
         onChange={props.onCountryChange}
         aria-label="Country filter"
       />
-      <label className="checkbox-row"><input type="checkbox" checked={props.sugarFreeOnly} onChange={(e) => props.onSugarFreeChange(e.target.checked)} /> Sugar free only</label>
-      <label className="checkbox-row"><input type="checkbox" checked={props.onlyFull} onChange={(e) => props.onOnlyFullChange(e.target.checked)} /> Only full</label>
+      <label className="checkbox-row"><input type="checkbox" checked={props.sugarFreeOnly} onChange={(e) => props.onSugarFreeChange(e.target.checked)} /> Sugar free</label>
+      <label className="checkbox-row"><input type="checkbox" checked={props.onlyFull} onChange={(e) => props.onOnlyFullChange(e.target.checked)} /> Full</label>
     </section>
   );
 }
