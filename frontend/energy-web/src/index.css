@@ -50,12 +50,22 @@ button, input, select { font: inherit; }
 .stat-value { font-size: 32px; font-weight: 800; }
 .filter-bar {
   display: grid;
-  grid-template-columns: minmax(11rem, 16rem) minmax(0, 1fr) minmax(0, 1fr) auto auto;
+  grid-template-columns:
+    minmax(12rem, min(40rem, 1fr))
+    minmax(11rem, 15.5rem)
+    minmax(11rem, 15.5rem)
+    auto auto;
   gap: 12px;
   padding: 16px;
   margin-bottom: 20px;
   position: relative;
   z-index: 20;
+  align-items: center;
+}
+
+.filter-bar-search {
+  width: 100%;
+  min-width: 0;
 }
 
 .filter-bar-search::placeholder {
@@ -66,6 +76,9 @@ button, input, select { font: inherit; }
 .country-filter-select {
   position: relative;
   min-width: 0;
+  width: 100%;
+  max-width: 15.75rem;
+  justify-self: start;
 }
 
 button.input.country-filter-select-trigger {
